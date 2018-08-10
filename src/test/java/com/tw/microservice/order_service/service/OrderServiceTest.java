@@ -1,5 +1,6 @@
 package com.tw.microservice.order_service.service;
 
+import com.tw.microservice.order_service.controller.VO.Product;
 import com.tw.microservice.order_service.controller.requests.AddOrderRequest;
 import com.tw.microservice.order_service.entity.Order;
 import com.tw.microservice.order_service.entity.OrderItem;
@@ -27,13 +28,13 @@ public class OrderServiceTest {
 
     @Mock
     private OrderRepository orderRepository;
-
-
     @Mock
     private OrderItemRepository orderItemRepository;
+    @Mock
+    private ProductClient productClient;
 
     private OrderService orderService;
-    private ProductClient productClient;
+
 
     @Before
     public void setUp() {
@@ -46,6 +47,8 @@ public class OrderServiceTest {
         Long userId = 1L;
         long orderId = 1L;
         long orderItemId = 2L;
+        Product product = new Product();
+
 
         OrderItem orderItem = OrderItem
                 .builder()
@@ -59,8 +62,9 @@ public class OrderServiceTest {
 
         AddOrderRequest addOrderRequest = new AddOrderRequest();
         addOrderRequest.setOrderItems(orderItems);
+        given(productClient.getProductById(orderItem.getProductId())).willReturn(product);
         //when
-        Order addedOrder = orderService.addOrder(addOrderRequest, userId);
+        orderService.addOrder(addOrderRequest, userId);
         //then
         verify(orderRepository, times(2)).save(any());
         verify(orderItemRepository, times(orderItems.size())).save(any());
@@ -73,6 +77,8 @@ public class OrderServiceTest {
         Long userId = 1L;
         long orderId = 1L;
         long orderItemId = 2L;
+
+        Product product = new Product();
 
         OrderItem orderItem = OrderItem
                 .builder()
@@ -95,6 +101,7 @@ public class OrderServiceTest {
         List<Order> orders = new ArrayList<>();
         orders.add(order);
         given(orderRepository.findByUserId(userId)).willReturn(orders);
+        given(productClient.getProductById(orderItem.getProductId())).willReturn(product);
 
         //when
         orderService.getAllOrderByUser(userId);
