@@ -10,9 +10,9 @@ import com.tw.microservice.order_service.exeption.OrderItemNotFoundException;
 import com.tw.microservice.order_service.exeption.OrderNotFoundException;
 import com.tw.microservice.order_service.repository.OrderItemRepository;
 import com.tw.microservice.order_service.repository.OrderRepository;
+import com.tw.microservice.order_service.restService.ProductClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 import java.util.List;
@@ -23,12 +23,15 @@ public class OrderService {
     private OrderRepository orderRepository;
     private OrderItemRepository orderItemRepository;
 
+    private ProductClient productClient;
+
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, ProductClient productClient) {
 
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+        this.productClient = productClient;
     }
 
 
@@ -112,18 +115,13 @@ public class OrderService {
     private ResponseOrderItem mapOrderItemToResponseOrderItem(OrderItem orderItem) {
         ResponseOrderItem responseOrderItem = new ResponseOrderItem();
         responseOrderItem.setCount(orderItem.getCount());
-        Product receivedProduct = getProductInfo(orderItem);
+        Product receivedProduct = productClient.getProductById(orderItem.getProductId());
         responseOrderItem.setProduct(receivedProduct);
         return responseOrderItem;
     }
 
-    private Product getProductInfo(OrderItem orderItem) {
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(String.format("http://localhost:8083/products/%s",orderItem.getProductId()), Product.class);
-    }
-
     private double getTotalPrice(double totalPrice, OrderItem orderItem) {
-        Product receivedProduct = getProductInfo(orderItem);
+        Product receivedProduct = productClient.getProductById(orderItem.getProductId());
         assert receivedProduct != null;
         totalPrice += orderItem.getCount() * receivedProduct.getPrice();
         return totalPrice;

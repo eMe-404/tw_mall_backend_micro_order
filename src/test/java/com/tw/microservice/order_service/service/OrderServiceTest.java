@@ -5,6 +5,7 @@ import com.tw.microservice.order_service.entity.Order;
 import com.tw.microservice.order_service.entity.OrderItem;
 import com.tw.microservice.order_service.repository.OrderItemRepository;
 import com.tw.microservice.order_service.repository.OrderRepository;
+import com.tw.microservice.order_service.restService.ProductClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,10 +33,11 @@ public class OrderServiceTest {
     private OrderItemRepository orderItemRepository;
 
     private OrderService orderService;
+    private ProductClient productClient;
 
     @Before
     public void setUp() {
-        orderService = new OrderService(orderRepository, orderItemRepository);
+        orderService = new OrderService(orderRepository, orderItemRepository, productClient);
     }
 
     @Test
@@ -47,7 +49,7 @@ public class OrderServiceTest {
 
         OrderItem orderItem = OrderItem
                 .builder()
-                .orderItemId(orderItemId)
+                .id(orderItemId)
                 .orderId(orderId)
                 .productId(1L)
                 .count(3)
@@ -74,7 +76,7 @@ public class OrderServiceTest {
 
         OrderItem orderItem = OrderItem
                 .builder()
-                .orderItemId(orderItemId)
+                .id(orderItemId)
                 .orderId(orderId)
                 .productId(1L)
                 .count(3)
@@ -110,7 +112,7 @@ public class OrderServiceTest {
 
         OrderItem addedorderItem = OrderItem
                 .builder()
-                .orderItemId(orderItemId + 1)
+                .id(orderItemId + 1)
                 .orderId(orderId)
                 .productId(1L)
                 .count(3)
@@ -118,7 +120,7 @@ public class OrderServiceTest {
 
         OrderItem orderItem = OrderItem
                 .builder()
-                .orderItemId(orderItemId)
+                .id(orderItemId)
                 .orderId(orderId)
                 .productId(1L)
                 .count(3)
@@ -154,7 +156,7 @@ public class OrderServiceTest {
 
         OrderItem updatedorderItem = OrderItem
                 .builder()
-                .orderItemId(orderItemId)
+                .id(orderItemId)
                 .orderId(orderId)
                 .productId(1L)
                 .count(5)
@@ -162,7 +164,7 @@ public class OrderServiceTest {
 
         OrderItem orderItem = OrderItem
                 .builder()
-                .orderItemId(orderItemId)
+                .id(orderItemId)
                 .orderId(orderId)
                 .productId(1L)
                 .count(3)
@@ -198,7 +200,7 @@ public class OrderServiceTest {
 
         OrderItem orderItem = OrderItem
                 .builder()
-                .orderItemId(orderItemId)
+                .id(orderItemId)
                 .orderId(orderId)
                 .productId(1L)
                 .count(3)

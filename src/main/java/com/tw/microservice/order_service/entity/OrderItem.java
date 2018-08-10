@@ -15,7 +15,6 @@ import javax.persistence.Table;
 @Entity
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "order_items")
 public class OrderItem {
@@ -28,4 +27,8 @@ public class OrderItem {
     private Long productId;
 
     private int count;
+
+    public OrderItem() {
+
+    }
 }
