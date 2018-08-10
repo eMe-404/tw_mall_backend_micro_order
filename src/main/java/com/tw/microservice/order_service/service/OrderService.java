@@ -32,8 +32,8 @@ public class OrderService {
     }
 
 
+    //创建一条订单
     public Order addOrder(AddOrderRequest addOrderRequest, Long userId) {
-
         Order toAddedOrder = new Order();
         double totalPrice = 0;
         toAddedOrder.setCreateDate(new Date());
@@ -48,12 +48,50 @@ public class OrderService {
         return orderRepository.save(toAddedOrder);
     }
 
+    //获取用户所有订单
     public List<ResponseOrder> getAllOrderByUser(Long userId) {
         return orderRepository
                 .findByUserId(userId)
                 .stream()
                 .map(this::mapOrderToResponseOrder)
                 .collect(Collectors.toList());
+    }
+
+    //添加一条订单项
+    public OrderItem addOrderItem(long userId, long orderId, OrderItem addedOrderItem) {
+        Order selectedOrder = findOrderInUserOrderList(userId, orderId);
+        for (OrderItem orderItem : selectedOrder.getOrderItems()) {
+            if (orderItem.getId().equals(addedOrderItem.getId())) {
+                orderItem.setCount(orderItem.getCount() + addedOrderItem.getCount());
+                return orderItemRepository.save(orderItem);
+            }
+        }
+        return orderItemRepository.save(addedOrderItem);
+    }
+
+    //修改一条订单项
+    public OrderItem updateOrderItem(long userId, long orderId, long orderItemId, OrderItem updatedOrderItem) throws OrderItemNotFoundException {
+        Order selectedOrder = findOrderInUserOrderList(userId, orderId);
+        for (OrderItem orderItem : selectedOrder.getOrderItems()) {
+            if (orderItem.getId().equals(orderItemId)) {
+                orderItem.setCount(updatedOrderItem.getCount());
+                orderItem.setProductId(updatedOrderItem.getProductId());
+                return orderItemRepository.save(orderItem);
+            }
+        }
+        throw new OrderItemNotFoundException();
+    }
+
+    //删除一条订单项
+    public void removeByOrderItemId(Long userId, long orderId, long deleteOrderItemId) {
+        Order selectedOrder = findOrderInUserOrderList(userId, orderId);
+        for (OrderItem orderItem : selectedOrder.getOrderItems()) {
+            if (orderItem.getId().equals(deleteOrderItemId)) {
+                orderItemRepository.deleteById(deleteOrderItemId);
+                return;
+            }
+        }
+        throw new OrderItemNotFoundException();
     }
 
     private ResponseOrder mapOrderToResponseOrder(Order order) {
@@ -74,30 +112,21 @@ public class OrderService {
     private ResponseOrderItem mapOrderItemToResponseOrderItem(OrderItem orderItem) {
         ResponseOrderItem responseOrderItem = new ResponseOrderItem();
         responseOrderItem.setCount(orderItem.getCount());
-        RestTemplate restTemplate = new RestTemplate();
-        Product receivedProduct = restTemplate.getForObject("http://localhost:8080/products/" + orderItem.getProductId(), Product.class);
+        Product receivedProduct = getProductInfo(orderItem);
         responseOrderItem.setProduct(receivedProduct);
         return responseOrderItem;
     }
 
-    private double getTotalPrice(double totalPrice, OrderItem orderItem) {
+    private Product getProductInfo(OrderItem orderItem) {
         RestTemplate restTemplate = new RestTemplate();
-        Product receivedProduct = restTemplate.getForObject("http://localhost:8080/products/" + orderItem.getProductId(), Product.class);
+        return restTemplate.getForObject(String.format("http://localhost:8083/products/%s",orderItem.getProductId()), Product.class);
+    }
+
+    private double getTotalPrice(double totalPrice, OrderItem orderItem) {
+        Product receivedProduct = getProductInfo(orderItem);
         assert receivedProduct != null;
         totalPrice += orderItem.getCount() * receivedProduct.getPrice();
         return totalPrice;
-    }
-
-
-    public OrderItem addOrderItem(long userId, long orderId, OrderItem addedOrderItem) {
-        Order selectedOrder = findOrderInUserOrderList(userId, orderId);
-        for (OrderItem orderItem : selectedOrder.getOrderItems()) {
-            if (orderItem.getOrderItemId().equals(addedOrderItem.getOrderItemId())) {
-                orderItem.setCount(orderItem.getCount() + addedOrderItem.getCount());
-                return orderItemRepository.save(orderItem);
-            }
-        }
-        return orderItemRepository.save(addedOrderItem);
     }
 
     private Order findOrderInUserOrderList(long userId, long orderId) throws OrderNotFoundException {
@@ -108,26 +137,4 @@ public class OrderService {
                 .orElseThrow(OrderNotFoundException::new);
     }
 
-    public OrderItem updateOrderItem(long userId, long orderId, OrderItem updatedOrderItem) throws OrderItemNotFoundException {
-        Order selectedOrder = findOrderInUserOrderList(userId, orderId);
-        for (OrderItem orderItem : selectedOrder.getOrderItems()) {
-            if (orderItem.getOrderItemId().equals(updatedOrderItem.getOrderItemId())) {
-                orderItem.setCount(updatedOrderItem.getCount());
-                orderItem.setProductId(updatedOrderItem.getProductId());
-                return orderItemRepository.save(orderItem);
-            }
-        }
-        throw new OrderItemNotFoundException();
-    }
-
-    public void removeByOrderItemId(Long userId, long orderId, long deleteOrderItemId) {
-        Order selectedOrder = findOrderInUserOrderList(userId, orderId);
-        for (OrderItem orderItem : selectedOrder.getOrderItems()) {
-            if (orderItem.getOrderItemId().equals(deleteOrderItemId)) {
-                orderItemRepository.deleteById(deleteOrderItemId);
-                return;
-            }
-        }
-        throw new OrderItemNotFoundException();
-    }
 }

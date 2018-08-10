@@ -11,7 +11,7 @@ public class ProductHealthIndicator implements HealthIndicator {
     @Override
     public Health health() {
         RestTemplate restTemplate = new RestTemplate();
-        JsonNode productHealth = restTemplate.getForObject("http://localhost:8888/actuator/health", JsonNode.class);
+        JsonNode productHealth = restTemplate.getForObject("http://localhost:8083/actuator/health", JsonNode.class);
         assert productHealth != null;
         String health = productHealth.get("status").asText();
         if (health.equals("Down")) {

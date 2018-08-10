@@ -183,7 +183,7 @@ public class OrderServiceTest {
         given(orderRepository.findByUserId(userId)).willReturn(orders);
         given(orderItemRepository.save(updatedorderItem)).willReturn(updatedorderItem);
         //when
-        OrderItem returnOrderItem = orderService.updateOrderItem(userId, orderId, updatedorderItem);
+        OrderItem returnOrderItem = orderService.updateOrderItem(userId, orderId, orderItemId, updatedorderItem);
         //then
         assertThat(returnOrderItem).isEqualTo(updatedorderItem);
         verify(orderItemRepository, times(1)).save(any());

@@ -45,19 +45,20 @@ public class OrderController {
         return ResponseEntity.ok(getOrderResponse);
     }
 
-    @PostMapping("/{orderId}/orderItems/{orderItemID}")
+    @PostMapping("/{orderId}/orderItems")
     private ResponseEntity addOrderItem(@RequestHeader long userId,
                                         @PathVariable long orderId,
                                         @RequestBody OrderItem addedOrderItem) {
         OrderItem orderItem = orderService.addOrderItem(userId,orderId,addedOrderItem);
-        return ResponseEntity.created(URI.create(String.format("/orders/%s/orderItems/%s",orderId,orderItem.getOrderItemId()))).build();
+        return ResponseEntity.created(URI.create(String.format("/orders/%s/orderItems/%s",orderId,orderItem.getId()))).build();
     }
 
     @PutMapping("/{orderId}/orderItems/{orderItemID}")
     private ResponseEntity updateOrderItem(@RequestHeader long userId,
                                            @PathVariable long orderId,
+                                           @PathVariable long orderItemId,
                                            @RequestBody OrderItem updatedOrderItem) {
-        OrderItem orderItem = orderService.updateOrderItem(userId,orderId,updatedOrderItem);
+        OrderItem orderItem = orderService.updateOrderItem(userId,orderId,orderItemId,updatedOrderItem);
         return ResponseEntity.noContent().build();
     }
 

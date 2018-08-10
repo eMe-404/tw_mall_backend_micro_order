@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/twMall_microserver_order?characterEncoding=utf-8
+    url: jdbc:mysql://127.0.0.1:3306/tw_orders?characterEncoding=utf-8
     username: root
-    password: yedili
+    password: 123456
   jpa:
     generate-ddl: true
 
