@@ -22,8 +22,7 @@ import java.util.stream.Collectors;
 public class OrderService {
     private OrderRepository orderRepository;
     private OrderItemRepository orderItemRepository;
-
-    private ProductClient productClient;
+    private final ProductClient productClient;
 
 
     @Autowired
