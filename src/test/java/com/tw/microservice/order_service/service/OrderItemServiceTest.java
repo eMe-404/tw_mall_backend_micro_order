@@ -34,7 +34,7 @@
 //        orderItem.setCount(5);
 //        given(orderItemRepository.save(orderItem)).willReturn(orderItem);
 //        //when
-//        OrderItem addedOrderItem = orderItemService.add(orderItem);
+//        OrderItem addedOrderItem = orderItemService.addOrderItem(orderItem);
 //        //then
 //        assertThat(addedOrderItem).isEqualTo(orderItem);
 //    }

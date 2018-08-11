@@ -60,8 +60,8 @@ public class OrderController {
     @PostMapping("/{orderId}/orderItems")
     private ResponseEntity addOrderItem(@RequestHeader long userId,
                                         @PathVariable long orderId,
-                                        @RequestBody OrderItem addedOrderItem) {
-        OrderItem orderItem = orderService.addOrderItem(userId, orderId, addedOrderItem);
+                                        @RequestBody OrderItem addOrderItem) {
+        OrderItem orderItem = orderService.addOrderItem(userId, orderId, addOrderItem);
         return ResponseEntity.created(URI.create(String.format("/orders/%s/orderItems/%s", orderId, orderItem.getId()))).build();
     }
 

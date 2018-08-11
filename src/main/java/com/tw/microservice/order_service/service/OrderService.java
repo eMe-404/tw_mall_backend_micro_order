@@ -60,15 +60,17 @@ public class OrderService {
     }
 
     //添加一条订单项
-    public OrderItem addOrderItem(long userId, long orderId, OrderItem addedOrderItem) {
+    public OrderItem addOrderItem(long userId, long orderId, OrderItem addOrderItem) {
         Order selectedOrder = findOrderInUserOrderList(userId, orderId);
-        for (OrderItem orderItem : selectedOrder.getOrderItems()) {
-            if (orderItem.getId().equals(addedOrderItem.getId())) {
-                orderItem.setCount(orderItem.getCount() + addedOrderItem.getCount());
-                return orderItemRepository.save(orderItem);
+
+        for (OrderItem item : selectedOrder.getOrderItems()) {
+            if (item.getProductId().equals(addOrderItem.getProductId())) {
+                item.setCount(item.getCount() + addOrderItem.getCount());
+                return orderItemRepository.save(item);
             }
         }
-        return orderItemRepository.save(addedOrderItem);
+        selectedOrder.addOrderItem(addOrderItem);
+        return orderItemRepository.save(addOrderItem);
     }
 
     //修改一条订单项
@@ -92,7 +94,7 @@ public class OrderService {
                 .filter(orderItem -> orderItem.getId().equals(deleteOrderItemId))
                 .findAny()
                 .orElseThrow(OrderItemNotFoundException::new);
-        selectedOrder.remove(selectedOrderItem);
+        selectedOrder.removeOrderItem(selectedOrderItem);
         orderItemRepository.deleteById(deleteOrderItemId);
     }
 

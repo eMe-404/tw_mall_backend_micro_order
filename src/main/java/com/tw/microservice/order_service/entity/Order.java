@@ -38,7 +38,12 @@ public class Order {
     public Order() {
     }
 
-    public void remove(OrderItem orderItem) {
+    public void addOrderItem(OrderItem orderItem) {
+        orderItems.add(orderItem);
+        orderItem.setOrderId(this.getId());
+    }
+
+    public void removeOrderItem(OrderItem orderItem) {
         orderItems.remove(orderItem);
         orderItem.setOrderId(null);
     }
