@@ -64,7 +64,7 @@ public class OrderServiceTest {
         addOrderRequest.setOrderItems(orderItems);
         given(productClient.getProductById(orderItem.getProductId())).willReturn(product);
         //when
-        orderService.addOrder(addOrderRequest, userId);
+        orderService.addOrderByUser(addOrderRequest, userId);
         //then
         verify(orderRepository, times(2)).save(any());
         verify(orderItemRepository, times(orderItems.size())).save(any());
@@ -108,6 +108,30 @@ public class OrderServiceTest {
 
         //then
         verify(orderRepository, times(1)).findByUserId(userId);
+    }
+
+    @Test
+    public void should_remove_order_when_call_removeOrder() {
+        //given
+        Long userId = 1L;
+        Long orderId = 1L;
+
+        Order order = Order
+                .builder()
+                .createDate(new Date())
+                .totalPrice(100)
+                .userId(userId)
+                .id(orderId)
+                .build();
+        List<Order> orders = new ArrayList<>();
+        orders.add(order);
+
+
+        given(orderRepository.findByUserId(1L)).willReturn(orders);
+        //when
+        orderService.removeOrder(orderId, userId);
+        //then
+        verify(orderRepository, times(1)).deleteById(1L);
     }
 
     @Test

@@ -35,7 +35,7 @@ public class OrderService {
 
 
     //创建一条订单
-    public Order addOrder(AddOrderRequest addOrderRequest, Long userId) {
+    public Order addOrderByUser(AddOrderRequest addOrderRequest, Long userId) {
         Order toAddedOrder = new Order();
         double totalPrice = 0;
         toAddedOrder.setCreateDate(new Date());
@@ -87,13 +87,13 @@ public class OrderService {
     //删除一条订单项
     public void removeByOrderItemId(Long userId, long orderId, long deleteOrderItemId) {
         Order selectedOrder = findOrderInUserOrderList(userId, orderId);
-        for (OrderItem orderItem : selectedOrder.getOrderItems()) {
-            if (orderItem.getId().equals(deleteOrderItemId)) {
-                orderItemRepository.deleteById(deleteOrderItemId);
-                return;
-            }
-        }
-        throw new OrderItemNotFoundException();
+
+        OrderItem selectedOrderItem = selectedOrder.getOrderItems().stream()
+                .filter(orderItem -> orderItem.getId().equals(deleteOrderItemId))
+                .findAny()
+                .orElseThrow(OrderItemNotFoundException::new);
+        selectedOrder.remove(selectedOrderItem);
+        orderItemRepository.deleteById(deleteOrderItemId);
     }
 
     private ResponseOrder mapOrderToResponseOrder(Order order) {
@@ -134,4 +134,13 @@ public class OrderService {
                 .orElseThrow(OrderNotFoundException::new);
     }
 
+    public void removeOrder(Long userId, Long orderId) {
+        List<Order> selectedOrders = orderRepository.findByUserId(userId);
+        selectedOrders.stream()
+                .filter(order -> order.getId().equals(orderId))
+                .findAny()
+                .orElseThrow(OrderNotFoundException::new);
+        orderRepository.deleteById(orderId);
+
+    }
 }

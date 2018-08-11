@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -23,7 +22,6 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "orders")
 public class Order {
     @Id
@@ -31,10 +29,17 @@ public class Order {
     private Long id;
     private Date createDate;
     private double totalPrice;
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id")
     List<OrderItem> orderItems = new ArrayList<>();
     @JsonIgnore
     private Long userId;
 
+    public Order() {
+    }
+
+    public void remove(OrderItem orderItem) {
+        orderItems.remove(orderItem);
+        orderItem.setOrderId(null);
+    }
 }
