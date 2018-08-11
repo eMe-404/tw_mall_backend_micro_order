@@ -59,6 +59,17 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
+    //删除一条订单
+    public void removeOrder(Long userId, Long orderId) {
+        List<Order> selectedOrders = orderRepository.findByUserId(userId);
+        selectedOrders.stream()
+                .filter(order -> order.getId().equals(orderId))
+                .findAny()
+                .orElseThrow(OrderNotFoundException::new);
+        orderRepository.deleteById(orderId);
+
+    }
+
     //添加一条订单项
     public OrderItem addOrderItem(long userId, long orderId, OrderItem addOrderItem) {
         Order selectedOrder = findOrderInUserOrderList(userId, orderId);
@@ -76,14 +87,15 @@ public class OrderService {
     //修改一条订单项
     public OrderItem updateOrderItem(long userId, long orderId, long orderItemId, OrderItem updatedOrderItem) throws OrderItemNotFoundException {
         Order selectedOrder = findOrderInUserOrderList(userId, orderId);
-        for (OrderItem orderItem : selectedOrder.getOrderItems()) {
-            if (orderItem.getId().equals(orderItemId)) {
-                orderItem.setCount(updatedOrderItem.getCount());
-                orderItem.setProductId(updatedOrderItem.getProductId());
-                return orderItemRepository.save(orderItem);
-            }
-        }
-        throw new OrderItemNotFoundException();
+
+        OrderItem selectedOrderItem = selectedOrder.getOrderItems().stream()
+                .filter(orderItem -> orderItem.getId().equals(orderItemId))
+                .findAny()
+                .orElseThrow(OrderItemNotFoundException::new);
+
+        selectedOrderItem.setCount(updatedOrderItem.getCount());
+        selectedOrderItem.setProductId(updatedOrderItem.getProductId());
+        return orderItemRepository.save(selectedOrderItem);
     }
 
     //删除一条订单项
@@ -134,15 +146,5 @@ public class OrderService {
                 .filter(order -> order.getId() == orderId)
                 .findAny()
                 .orElseThrow(OrderNotFoundException::new);
-    }
-
-    public void removeOrder(Long userId, Long orderId) {
-        List<Order> selectedOrders = orderRepository.findByUserId(userId);
-        selectedOrders.stream()
-                .filter(order -> order.getId().equals(orderId))
-                .findAny()
-                .orElseThrow(OrderNotFoundException::new);
-        orderRepository.deleteById(orderId);
-
     }
 }
